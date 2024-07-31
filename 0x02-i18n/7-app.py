@@ -4,16 +4,16 @@ Initialization of a Flask application with Babel
 for text localization
 and timezone management.
 """
-
 from flask import Flask, request, g, render_template
 from flask_babel import Babel, gettext
 import pytz
 from pytz.exceptions import UnknownTimeZoneError
 
+
 app = Flask(__name__)
 babel = Babel(app)
 
-# Default configuration for localization and timezone
+
 app.config['BABEL_DEFAULT_LOCALE'] = 'en'
 app.config['BABEL_DEFAULT_TIMEZONE'] = 'UTC'
 
@@ -24,6 +24,7 @@ users = {
     4: {"name": "Teletubby", "locale": None, "timezone": "Europe/London"},
 }
 
+
 def get_user():
     """
     Retrieves the user from the 'login_as' URL parameter.
@@ -33,12 +34,14 @@ def get_user():
         return users.get(int(user_id))
     return None
 
+
 @app.before_request
 def before_request():
     """
     Executes before each request to set the global user.
     """
     g.user = get_user()
+
 
 @babel.localeselector
 def get_locale():
@@ -54,6 +57,7 @@ def get_locale():
     if g.user and g.user['locale'] in ['en', 'fr']:
         return g.user['locale']
     return app.config['BABEL_DEFAULT_LOCALE']
+
 
 @babel.timezoneselector
 def get_timezone():
@@ -78,9 +82,10 @@ def get_timezone():
             pass
     return 'UTC'
 
-# Adding functions to Jinja global environment
+
 app.jinja_env.globals['get_locale'] = get_locale
 app.jinja_env.globals['get_timezone'] = get_timezone
+
 
 @app.route('/')
 def index():
@@ -88,6 +93,7 @@ def index():
     Displays the home page.
     """
     return render_template('7-index.html')
+
 
 if __name__ == "__main__":
     app.run(debug=True)
