@@ -1,45 +1,44 @@
 #!/usr/bin/env python3
-"""
-Initialization of a Flask application with Babel for text localization.
-"""
-from flask import Flask
-from flask import request
-from flask import render_template
+"""we need to force our url"""
+
+from flask import Flask, render_template, request
 from flask_babel import Babel
 
 
-class Config(object):
-    """
-    Babel configuration with languages and default settings.
-    """
-    LANGUAGES = ['en', 'fr']
-    BABEL_DEFAULT_LOCALE = 'en'
-    BABEL_DEFAULT_TIMEZONE = 'UTC'
+class Config:
+    """config our class"""
+
+    DEBUG = True
+    LANGUAGES = ["en", "fr"]
+    BABEL_DEFAULT_LOCALE = "en"
+    BABEL_DEFAULT_TIMEZONE = "UTC"
 
 
 app = Flask(__name__)
 app.config.from_object(Config)
+app.url_map.strict_slashes = False
 babel = Babel(app)
 
 
 @babel.localeselector
 def get_locale() -> str:
-    """
-    Selects the appropriate locale based.
-    """
-    locale = request.args.get('locale', '').strip()
-    if locale and locale in Config.LANGUAGES:
-        return locale
+    """Retrieves the locale"""
+    local = request.args.get('locale')
+    if local in app.config['LANGUAGES']:
+        return local
     return request.accept_languages.best_match(app.config['LANGUAGES'])
 
 
-@app.route('/', strict_slashes=False)
+@app.route('/')
 def index() -> str:
-    """
-    Displays the home page.
-    """
-    return render_template('4-index.html')
+    """default route"""
+    return render_template("4-index.html")
+
+# uncomment this line and comment the @babel.localeselector
+# you get this error:
+# AttributeError: 'Babel' object has no attribute 'localeselector'
+# babel.init_app(app, locale_selector=get_locale)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run()
