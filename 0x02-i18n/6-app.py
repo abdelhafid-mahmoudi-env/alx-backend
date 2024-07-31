@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Task 6: Use user locale"""
+"""Task 6: Use user locale."""
+
 from typing import Dict, Union
 from flask import Flask, render_template, request, g
 from flask_babel import Babel
 
 
 class Config:
-    '''Configuration class for the Flask app'''
+    """Configuration class for the Flask application."""
 
     DEBUG = True
     LANGUAGES = ["en", "fr"]
@@ -27,30 +28,30 @@ users = {
 }
 
 
-def fetch_user() -> Union[Dict, None]:
-    """Fetches a user based on the user ID provided in the request parameters.
+def get_user() -> Union[Dict, None]:
+    """Retrieves a user based on a user id from the request arguments.
 
     Returns:
-        Union[Dict, None]: The user dictionary if found, otherwise None.
+        dict or None: User information if found, otherwise None.
     """
-    user_id = request.args.get('login_as')
-    if user_id:
-        return users.get(int(user_id))
+    id = request.args.get('login_as')
+    if id:
+        return users.get(int(id))
     return None
 
 
 @app.before_request
-def before_each_request() -> None:
-    """Executed before each request"""
-    g.user = fetch_user()
+def before_request() -> None:
+    """Performs routines before each request's resolution."""
+    g.user = get_user()
 
 
 @babel.localeselector
 def get_locale() -> str:
-    """Determines the best locale for the current request.
+    """Retrieves the locale for a web page, prioritizing URL parameter.
 
     Returns:
-        str: The best matching locale.
+        str: Best matched locale from the URL parameter.
     """
     locale = request.args.get('locale')
     if locale in app.config['LANGUAGES']:
@@ -64,12 +65,12 @@ def get_locale() -> str:
 
 
 @app.route('/')
-def home_page() -> str:
-    '''Default route for the homepage.
+def index() -> str:
+    """Default route serving the homepage.
 
     Returns:
-        str: Rendered HTML for the homepage.
-    '''
+        str: Rendered homepage HTML.
+    """
     return render_template("6-index.html")
 
 
