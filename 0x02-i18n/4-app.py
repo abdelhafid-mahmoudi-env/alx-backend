@@ -2,14 +2,13 @@
 """
 Initialization of a Flask application with Babel for text localization.
 """
-
-from flask import Flask, render_template, request
+from flask import Flask
+from flask import request
+from flask import render_template
 from flask_babel import Babel
-from typing import Optional
 
-app = Flask(__name__)
 
-class Config:
+class Config(object):
     """
     Babel configuration with languages and default settings.
     """
@@ -17,25 +16,30 @@ class Config:
     BABEL_DEFAULT_LOCALE = 'en'
     BABEL_DEFAULT_TIMEZONE = 'UTC'
 
+
+app = Flask(__name__)
 app.config.from_object(Config)
 babel = Babel(app)
 
+
 @babel.localeselector
-def get_locale() -> Optional[str]:
+def get_locale() -> str:
     """
-    Selects the appropriate locale based on the HTTP request or URL parameter.
+    Selects the appropriate locale based.
     """
-    user_locale = request.args.get('locale')
-    if user_locale in app.config['LANGUAGES']:
-        return user_locale
+    locale = request.args.get('locale', '').strip()
+    if locale and locale in Config.LANGUAGES:
+        return locale
     return request.accept_languages.best_match(app.config['LANGUAGES'])
 
-@app.route('/')
+
+@app.route('/', strict_slashes=False)
 def index() -> str:
     """
     Displays the home page.
     """
     return render_template('4-index.html')
 
-if __name__ == "__main__":
-    app.run(debug=True)
+
+if __name__ == '__main__':
+    app.run()
